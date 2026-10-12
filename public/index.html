@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>فيتامين د</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="فيتامين د">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;        /* أبيض توتنهام */
+    --ink:#132257;       /* كحلي توتنهام */
+    --soft:#F2F4F9;      /* خلفية البطاقات */
+    --line:#DDE2EE;      /* حدود خفيفة */
+    --muted:#5B6386;     /* نص ثانوي */
+    --on-ink:#FFFFFF;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Readex Pro",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+  body{min-height:100dvh;padding:max(20px,env(safe-area-inset-top)) 20px max(28px,env(safe-area-inset-bottom))}
+  main{max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:8px}
+  .muted{color:var(--muted)}
+
+  /* الرأس */
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .top h1{margin:0;font-size:1.75rem;font-weight:700}
+  .pill{font-size:.85rem;padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1.5px var(--line);color:var(--muted);white-space:nowrap}
+
+  /* القرص */
+  .hero{display:flex;flex-direction:column;align-items:center;gap:18px}
+  .disc{width:min(100%,280px)}
+  .disc svg{display:block;width:100%;height:auto;overflow:visible}
+  .half{fill:var(--bg);stroke:var(--ink);stroke-width:3;transition:fill .45s ease}
+  .half.lit{fill:var(--ink)}
+  .divider{stroke:var(--ink);stroke-width:3;transition:stroke .45s}
+  .disc.full .divider{stroke:var(--on-ink)}
+  .who{font:600 15px "Readex Pro",sans-serif;fill:var(--ink);text-anchor:middle;transition:fill .45s}
+  .when{font:400 12px "Readex Pro",sans-serif;fill:var(--muted);text-anchor:middle}
+  .who.on,.when.on{fill:var(--on-ink)}
+  .rays line{stroke:var(--ink);stroke-width:4;stroke-linecap:round;stroke-dasharray:18;stroke-dashoffset:18;transition:stroke-dashoffset .5s}
+  .disc.full .rays line{stroke-dashoffset:0}
+  .disc.full .rays line:nth-child(odd){transition-delay:.12s}
+  .status{margin:0;font-size:1.05rem;text-align:center}
+  .primary{width:100%;padding:17px;border-radius:999px;background:var(--ink);color:var(--on-ink);font-size:1.1rem;font-weight:600;transition:transform .1s}
+  .primary:active{transform:scale(.98)}
+  .primary.done{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+  .primary:disabled{opacity:.5}
+  .next{margin:0;text-align:center;font-size:.92rem;line-height:1.7}
+
+  /* الدوري */
+  .card{background:var(--soft);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:10px}
+  .card .head{display:flex;justify-content:space-between;align-items:baseline}
+  .card h2{margin:0;font-size:1.25rem;font-weight:600}
+  .card .head span{font-size:.88rem}
+  .lrow{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:12px 16px;border-radius:16px;
+    background:var(--bg);font-size:1.05rem;font-weight:600}
+  .lrow.lead{background:var(--ink);color:var(--on-ink)}
+  .lrow b{font-size:1.6rem;font-weight:700;min-width:1.4em;text-align:center}
+  .dots{display:flex;gap:5px}
+  .dot{width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 2px currentColor}
+  .dot.on{background:currentColor}
+  .dot.later{opacity:.25}
+  .lnote{margin:4px 0 0;line-height:1.6}
+  .rule{margin:0;font-size:.82rem}
+  details{border-top:1px solid var(--line);margin-top:4px;padding-top:4px}
+  summary{cursor:pointer;font-weight:500;padding:8px 0;list-style:none;display:flex;justify-content:space-between}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"▾";color:var(--muted)}
+  details[open] summary::after{content:"▴"}
+  .list{list-style:none;margin:0;padding:0}
+  .list li{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+  .list li:last-child{border-bottom:0}
+
+  /* التنبيهات */
+  .setting{display:flex;gap:12px;align-items:flex-start;font-size:.9rem;line-height:1.7}
+  .setting svg{flex:none;margin-top:3px}
+  .setting p{margin:0}
+  .link{text-decoration:underline;text-underline-offset:4px;font-weight:500;padding:2px 0}
+  .small{width:auto;padding:10px 20px;font-size:.95rem;margin-top:8px}
+  footer{text-align:center;font-size:.85rem}
+
+  /* اختيار الاسم */
+  .sheet{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}
+  .sheet.open{display:flex}
+  .sheet .inner{width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px}
+  .sheet h2{font-size:1.6rem;margin:0 0 8px}
+  .pick{width:100%;padding:16px 18px;border-radius:16px;box-shadow:inset 0 0 0 2px var(--ink);font-size:1.1rem;font-weight:600;
+    display:flex;justify-content:space-between;align-items:center;text-align:start}
+  .pick small{font-size:.8rem;font-weight:400;color:var(--muted)}
+  .step{display:flex;flex-direction:column;gap:12px}
+  .step[hidden]{display:none}
+  .step p{margin:0 0 6px;line-height:1.7}
+  .back{align-self:flex-start}
+  .pin{text-align:center;font-size:1.4rem;letter-spacing:.5em;direction:ltr}
+  .pin::placeholder{letter-spacing:.2em;font-size:1rem}
+  .pick:active{background:var(--soft)}
+  input{font:inherit;color:var(--ink);width:100%;padding:15px;border-radius:16px;border:2px solid var(--line);background:var(--bg);font-size:1.05rem}
+  .err{color:#B3261E;min-height:1.4em;margin:0}
+
+  /* الرسائل */
+  .toast,.cheer{position:fixed;inset-inline:16px;bottom:max(20px,env(safe-area-inset-bottom));max-width:420px;margin:0 auto;
+    background:var(--ink);color:var(--on-ink);opacity:0;transform:translateY(16px);pointer-events:none;z-index:15}
+  .toast{padding:13px 18px;border-radius:14px;font-size:.95rem;transition:.25s}
+  .cheer{padding:20px 22px;border-radius:22px;font-size:1.15rem;font-weight:600;line-height:1.6;cursor:pointer;
+    transition:opacity .25s,transform .35s cubic-bezier(.2,.9,.3,1.25)}
+  .toast.show,.cheer.show{opacity:1;transform:none}
+  .cheer.show{pointer-events:auto}
+  .cheer p{margin:0}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <div id="demoBar" hidden></div>
+
+  <header class="top">
+    <h1>فيتامين د</h1>
+    <span class="pill" id="weekLabel">…</span>
+  </header>
+
+  <section class="hero">
+    <div class="disc" id="disc">
+      <svg viewBox="-130 -130 260 260" role="img" aria-label="حالة هالأسبوع">
+        <g class="rays" id="rays"></g>
+        <path id="half-r" class="half" d="M0,-90 A90,90 0 0,1 0,90 Z"/>
+        <path id="half-l" class="half" d="M0,-90 A90,90 0 0,0 0,90 Z"/>
+        <line class="divider" x1="0" y1="-90" x2="0" y2="90"/>
+        <text id="name-r" class="who" x="45" y="0"></text><text id="time-r" class="when" x="45" y="22"></text>
+        <text id="name-l" class="who" x="-45" y="0"></text><text id="time-l" class="when" x="-45" y="22"></text>
+      </svg>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+    <button class="primary" id="takeBtn" disabled>…</button>
+    <p class="next"><span id="nextWhen"></span><br><span class="muted" id="countdown"></span></p>
+  </section>
+
+  <section class="card" id="league" hidden>
+    <div class="head"><h2 id="leagueTitle"></h2><span class="muted" id="leagueLeft"></span></div>
+    <div id="table" style="display:flex;flex-direction:column;gap:8px"></div>
+    <p class="lnote" id="leagueNote"></p>
+    <p class="rule muted">الحبة بنقطة، واللي يسبق ياخذ نقطة زيادة. كل دائرة جمعة من الشهر.</p>
+    <details id="champsWrap" hidden>
+      <summary>أبطال الشهور اللي فاتت</summary>
+      <ul class="list" id="champs"></ul>
+    </details>
+  </section>
+
+  <section class="setting">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    <div id="notif"><p class="muted">…</p></div>
+  </section>
+
+  <footer><span class="muted" id="whoami"></span> <button class="link muted" id="logoutBtn" hidden>تسجيل الخروج</button></footer>
+</main>
+
+<div class="sheet" id="loginSheet" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+  <div class="inner">
+    <div id="stepWho" class="step">
+      <h2 id="loginTitle">تسجيل الدخول</h2>
+      <p class="muted">اختر حسابك</p>
+      <div id="whoPicks" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+    <div id="stepPin" class="step" hidden>
+      <button class="link muted back" id="backBtn">رجوع</button>
+      <h2 id="pinTitle"></h2>
+      <p class="muted" id="pinHint"></p>
+      <input id="pin1" class="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="current-password" placeholder="••••" aria-label="رمز الدخول">
+      <input id="pin2" class="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="new-password" placeholder="تأكيد الرمز" aria-label="تأكيد الرمز" hidden>
+      <button class="primary" id="pinBtn"></button>
+    </div>
+    <p class="err" id="loginErr" role="alert"></p>
+  </div>
+</div>
+
+<div class="cheer" id="cheer" role="status"><p></p></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const DEMO = !!window.__DEMO__;
+const $ = (s) => document.querySelector(s);
+const TZ = "Asia/Riyadh";
+const AR = "ar-SA-u-ca-gregory-nu-arab";
+const fmtDay   = new Intl.DateTimeFormat(AR, { timeZone: TZ, weekday: "long", day: "numeric", month: "long" });
+const fmtTime  = new Intl.DateTimeFormat(AR, { timeZone: TZ, hour: "numeric", minute: "2-digit" });
+const fmtMonth = new Intl.DateTimeFormat(AR, { timeZone: "UTC", month: "long" });
+const num = (n) => n.toLocaleString("ar-SA");
+const FEM = { "لطيفة": true };
+
+// عدد + معدود بالعربي: ١ يوم، يومين، ٣ أيام، ١١ يوم
+function count(n, one, two, few, many) {
+  if (n === 1) return one;
+  if (n === 2) return two;
+  return `${num(n)} ${n <= 10 ? few : many}`;
+}
+
+const store = {
+  get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch {} },
+};
+
+let state = null;
+let token = DEMO ? null : store.get("vd-token");
+let me = null;
+let loginName = null;
+
+// أشعة الشمس: تظهر لما الاثنين يسجلون
+for (let i = 0; i < 12; i++) {
+  const a = i * Math.PI / 6, c = Math.cos(a), s = Math.sin(a);
+  const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  l.setAttribute("x1", c * 104); l.setAttribute("y1", s * 104);
+  l.setAttribute("x2", c * 122); l.setAttribute("y2", s * 122);
+  $("#rays").appendChild(l);
+}
+
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2400);
+}
+function cheer(msg) {
+  const c = $("#cheer"); c.querySelector("p").textContent = msg; c.classList.add("show");
+  clearTimeout(cheer.t); cheer.t = setTimeout(() => c.classList.remove("show"), 4500);
+}
+$("#cheer").onclick = () => $("#cheer").classList.remove("show");
+
+// رسائل التسجيل
+function cheerLine(me, o, otherDone) {
+  const F = !!FEM[me], OF = !!FEM[o], s = F ? "شطورة" : "شطور";
+  const first = [
+    `${s}! ${F ? "سبقتي" : "سبقت"} ${o}، ${OF ? "خلّها تاكل" : "خلّه ياكل"} غبارك 😎`,
+    `${s}! الجولة لك: ${me} ١، ${o} ٠ ⚽`,
+    `${s}! ${o} لسّا ${OF ? "تدوّر" : "يدوّر"} الحبة... ${OF ? "خلّها تدوّر" : "خلّه يدوّر"} 😂`,
+    `${s}! ${F ? "تصدّرتي" : "تصدّرت"} الدوري، و${o} ${OF ? "قاعدة" : "قاعد"} على الدكة 🪑`,
+    `${s}! بس ${F ? "لا تشوفين" : "لا تشوف"} نفسك، ${o} ${OF ? "بتلحقك" : "بيلحقك"} 👀`,
+  ];
+  const second = [
+    `${s}! ${o} ${OF ? "سبقتك" : "سبقك"} هالمرة... الأسبوع الجاي ثأر 😤`,
+    `${s}! تعادل، بس الكل يدري مين الأسرع 😏`,
+    `${s}! ${F ? "وصلتي متأخرة" : "وصلت متأخر"}، بس ${F ? "وصلتي" : "وصلت"} 🐢`,
+  ];
+  const any = [`${s}! عظامك صارت حديد، وعظام ${o} بسكويت 🍪`];
+  const pool = (otherDone ? second : first).concat(any);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+async function api(path, body) {
+  const headers = { "content-type": "application/json" };
+  if (token) headers.authorization = "Bearer " + token;
+  const r = await fetch(path, body
+    ? { method: "POST", headers, body: JSON.stringify(body) }
+    : { headers, cache: "no-store" });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401 && path !== "/api/login") { signOutLocal(); openLogin(); }
+  if (!r.ok) throw new Error(d.error || "تعذّر الاتصال، حاول مرة ثانية");
+  return d;
+}
+
+const weekDate = (key, time = "12:00") => new Date(`${key}T${time}:00+03:00`);
+
+async function load() {
+  try { state = await api("/api/state"); }
+  catch (e) { $("#status").textContent = e.message; return; }
+  me = state.me || null;
+  if (token && !me) signOutLocal();
+  if (!me) openLogin();
+  render();
+}
+
+function render() {
+  const { people, checkins, week } = state;
+  const [a, b] = people;
+
+  const setHalf = (side, name) => {
+    const t = name && checkins[name];
+    $(`#half-${side}`).classList.toggle("lit", !!t);
+    $(`#name-${side}`).textContent = name || "؟";
+    $(`#time-${side}`).textContent = t ? fmtTime.format(new Date(t)) : (name ? "بالانتظار" : "");
+    $(`#name-${side}`).classList.toggle("on", !!t);
+    $(`#time-${side}`).classList.toggle("on", !!t);
+  };
+  setHalf("r", a); setHalf("l", b);
+
+  const done = people.filter((p) => checkins[p]);
+  const full = people.length === 2 && done.length === 2;
+  $("#disc").classList.toggle("full", full);
+  $("#weekLabel").textContent = fmtDay.format(weekDate(week));
+
+  $("#status").textContent =
+    people.length < 2 ? "أرسل الرابط للشخص الثاني عشان ينضم" :
+    full ? "الاثنين أخذوا حبتهم هالأسبوع ☀️" :
+    done.length === 1 ? `${done[0]} ${FEM[done[0]] ? "أخذت حبتها" : "أخذ حبته"}، وباقي ${people.find((p) => !checkins[p])}` :
+    "محد أخذ حبته هالأسبوع";
+
+  const btn = $("#takeBtn");
+  btn.disabled = !me;
+  $("#whoami").textContent = me ? `داخل باسم ${me}، ` : "";
+  $("#logoutBtn").hidden = !me;
+  const mine = me && checkins[me];
+  btn.textContent = mine ? "إلغاء التسجيل" : "أخذت حبتي ✓";
+  btn.classList.toggle("done", !!mine);
+
+  // التذكير الجاي
+  const now = new Date();
+  let target = weekDate(week, "14:30");
+  if (target < now) target = new Date(target.getTime() + 7 * 864e5);
+  $("#nextWhen").textContent = `التذكير الجاي ${fmtDay.format(target)}، ٢:٣٠ العصر`;
+  const mins = Math.max(0, Math.round((target - now) / 6e4));
+  const d = Math.floor(mins / 1440), h = Math.floor(mins % 1440 / 60), m = mins % 60;
+  const D = d && count(d, "يوم", "يومين", "أيام", "يوم");
+  const H = h && count(h, "ساعة", "ساعتين", "ساعات", "ساعة");
+  const M = m && count(m, "دقيقة", "دقيقتين", "دقايق", "دقيقة");
+  $("#countdown").textContent = d ? `بعد ${D}${H ? ` و${H}` : ""}` : h ? `بعد ${H}${M ? ` و${M}` : ""}` : m ? `بعد ${M}` : "الحين";
+
+  renderLeague(people, [{ week, checkins }, ...state.history], week);
+  renderNotif();
+  if (DEMO) renderDemoBar();
+}
+
+// الدوري الشهري
+function weekPoints(c, people) {
+  const pts = Object.fromEntries(people.map((p) => [p, c[p] ? 1 : 0]));
+  const took = people.filter((p) => c[p]).sort((x, y) => new Date(c[x]) - new Date(c[y]));
+  if (took.length) pts[took[0]] += 1;
+  return pts;
+}
+function renderLeague(people, weeks, curWeek) {
+  $("#league").hidden = people.length < 2;
+  if (people.length < 2) return;
+  const monthName = (k) => fmtMonth.format(new Date(k + "-15T00:00:00Z"));
+  const months = {};
+  for (const w of weeks) {
+    const k = w.week.slice(0, 7);
+    months[k] = months[k] || Object.fromEntries(people.map((p) => [p, 0]));
+    const wp = weekPoints(w.checkins || {}, people);
+    people.forEach((p) => (months[k][p] += wp[p]));
+  }
+  const cur = curWeek.slice(0, 7);
+  const t = months[cur];
+  const [a, b] = [...people].sort((x, y) => t[y] - t[x]);
+  const diff = t[a] - t[b];
+
+  // جمع هالشهر
+  const fridays = [];
+  const start = new Date(curWeek + "T12:00:00Z");
+  while (true) { const p = new Date(start); p.setUTCDate(p.getUTCDate() - 7); if (p.toISOString().slice(0, 7) !== cur) break; start.setTime(p.getTime()); }
+  for (const x = new Date(start); x.toISOString().slice(0, 7) === cur; x.setUTCDate(x.getUTCDate() + 7)) fridays.push(x.toISOString().slice(0, 10));
+  const left = fridays.filter((f) => f >= curWeek).length;
+  const byWeek = Object.fromEntries(weeks.map((w) => [w.week, w.checkins || {}]));
+
+  $("#leagueTitle").textContent = "دوري " + monthName(cur);
+  $("#leagueLeft").textContent = left === 1 ? "آخر جمعة بالشهر" : `باقي ${count(left, "جمعة", "جمعتين", "جمع", "جمعة")}`;
+  $("#table").innerHTML = [a, b].map((p) => {
+    const lead = diff > 0 && p === a;
+    const dots = fridays.map((f) => `<span class="dot ${byWeek[f]?.[p] ? "on" : ""} ${f > curWeek ? "later" : ""}"></span>`).join("");
+    return `<div class="lrow ${lead ? "lead" : ""}"><span>${lead ? "👑 " : ""}${p}</span><span class="dots" aria-hidden="true">${dots}</span><b>${num(t[p])}</b></div>`;
+  }).join("");
+  $("#leagueNote").textContent =
+    diff === 0 ? (t[a] ? "تعادل، والجمعة الجاية تحسم 🔥" : "الشهر توه بادي، والكل على الصفر")
+    : `${a} ${FEM[a] ? "متصدّرة" : "متصدّر"} بفارق ${count(diff, "نقطة", "نقطتين", "نقاط", "نقطة")}، و${b} ${FEM[b] ? "لازم تصحصح" : "لازم يصحصح"} 😏`;
+
+  const past = Object.keys(months).filter((k) => k < cur).sort().reverse().slice(0, 6);
+  $("#champsWrap").hidden = !past.length;
+  $("#champs").innerHTML = past.map((k) => {
+    const m = months[k], [w, l] = [...people].sort((x, y) => m[y] - m[x]);
+    const res = m[w] === m[l] ? `تعادل ${num(m[w])}–${num(m[l])}` : `🏆 ${w}، ${num(m[w])}–${num(m[l])}`;
+    return `<li><span>${monthName(k)}</span><span>${res}</span></li>`;
+  }).join("");
+}
+
+$("#takeBtn").onclick = async () => {
+  const btn = $("#takeBtn"); btn.disabled = true;
+  const undo = !!state.checkins[me];
+  const other = state.people.find((p) => p !== me);
+  const otherDone = !!(other && state.checkins[other]);
+  try {
+    const r = await api("/api/checkin", { undo });
+    state.checkins = r.checkins; render();
+    if (undo) toast("انلغى التسجيل");
+    else cheer(other ? cheerLine(me, other, otherDone) : (FEM[me] ? "شطورة! 💪" : "شطور! 💪"));
+  } catch (e) { toast(e.message); btn.disabled = false; }
+};
+
+// تسجيل الدخول: كل شخص له رمز من ٤ أرقام
+const err = (m) => ($("#loginErr").textContent = m);
+function openLogin() {
+  $("#stepWho").hidden = false; $("#stepPin").hidden = true; err("");
+  $("#whoPicks").innerHTML = state.people.map((p) =>
+    `<button class="pick" data-p="${p}"><span>${p}</span><small>${state.accounts.includes(p) ? "" : "أول دخول"}</small></button>`).join("");
+  $("#whoPicks").querySelectorAll("[data-p]").forEach((b) => (b.onclick = () => pickAccount(b.dataset.p)));
+  $("#loginSheet").classList.add("open");
+}
+function pickAccount(p) {
+  loginName = p;
+  const isNew = !state.accounts.includes(p);
+  $("#stepWho").hidden = true; $("#stepPin").hidden = false; err("");
+  $("#pinTitle").textContent = `أهلاً ${p}`;
+  $("#pinHint").textContent = isNew
+    ? "اختر رمز دخول من ٤ أرقام. بتحتاجه إذا دخلت من جهاز ثاني."
+    : "اكتب رمز الدخول";
+  $("#pin2").hidden = !isNew;
+  $("#pinBtn").textContent = isNew ? "إنشاء الحساب" : "دخول";
+  $("#pin1").value = ""; $("#pin2").value = "";
+  $("#pin1").focus();
+}
+async function submitPin() {
+  const p1 = $("#pin1").value, isNew = !state.accounts.includes(loginName);
+  if (!/^\d{4}$/.test(p1)) return err("الرمز لازم يكون ٤ أرقام");
+  if (isNew && p1 !== $("#pin2").value) return err("الرمزين مو متطابقين");
+  const btn = $("#pinBtn"); btn.disabled = true;
+  try {
+    const r = await api("/api/login", { name: loginName, pin: p1 });
+    token = r.token; me = r.name; store.set("vd-token", token);
+    $("#loginSheet").classList.remove("open");
+    await load();
+  } catch (e) { err(e.message); $("#pin1").select(); }
+  btn.disabled = false;
+}
+$("#pinBtn").onclick = submitPin;
+$("#backBtn").onclick = openLogin;
+["#pin1", "#pin2"].forEach((id) => {
+  $(id).oninput = (e) => {
+    e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+    if (id === "#pin1" && $("#pin2").hidden && e.target.value.length === 4) submitPin();
+  };
+  $(id).onkeydown = (e) => { if (e.key === "Enter") submitPin(); };
+});
+
+function signOutLocal() { token = null; me = null; store.set("vd-token", ""); }
+$("#logoutBtn").onclick = async () => {
+  if (swReady) {
+    try {
+      const reg = await swReady, sub = await reg.pushManager.getSubscription();
+      if (sub) { await api("/api/unsubscribe", { endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe(); }
+    } catch {}
+  }
+  signOutLocal(); render(); openLogin();
+};
+
+// التنبيهات
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const swReady = !DEMO && "serviceWorker" in navigator
+  ? navigator.serviceWorker.register("/sw.js").then(() => navigator.serviceWorker.ready) : null;
+const ON_TEXT = `<p>التنبيهات مفعّلة: الجمعة ٢:٣٠ العصر، وتذكير ثاني ٨ المساء إذا ما سجّلت.</p>
+  <button class="link" id="testBtn">تجربة التنبيه</button>`;
+
+function urlB64(b64) {
+  const pad = "=".repeat((4 - b64.length % 4) % 4);
+  const raw = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+}
+
+async function renderNotif() {
+  const box = $("#notif");
+  if (DEMO) {
+    box.innerHTML = ON_TEXT;
+    $("#testBtn").onclick = () => { toast("بيوصلك تنبيه خلال دقيقة أو دقيقتين. اقفل الشاشة وانتظر."); setTimeout(() => window.__demoPush(me, state, true), 2500); };
+    return;
+  }
+  if (isIOS && !standalone) {
+    box.innerHTML = `<p>على الآيفون: افتح الموقع من Safari، واختر «إضافة إلى الشاشة الرئيسية» من زر المشاركة، وبعدها افتحه من الأيقونة وفعّل التنبيهات.</p>`; return;
+  }
+  if (!swReady || !("PushManager" in window)) {
+    box.innerHTML = `<p>المتصفح هذا ما يدعم التنبيهات. استخدم Chrome على أندرويد أو Safari على الآيفون.</p>`; return;
+  }
+  if (!state.vapidKey) {
+    box.innerHTML = `<p>التنبيهات ما تفعّلت في Netlify للحين. أضف مفاتيح VAPID، والخطوات في ملف README.</p>`; return;
+  }
+  if (Notification.permission === "denied") {
+    box.innerHTML = `<p>التنبيهات مقفلة لهذا الموقع. فعّلها من إعدادات الجوال.</p>`; return;
+  }
+  const reg = await swReady;
+  const sub = await reg.pushManager.getSubscription();
+  if (!me) { box.innerHTML = `<p class="muted">سجّل دخولك عشان تفعّل التنبيهات.</p>`; return; }
+  if (sub) {
+    api("/api/subscribe", { subscription: sub.toJSON() }).catch(() => {});
+    box.innerHTML = ON_TEXT;
+    $("#testBtn").onclick = async () => {
+      try { await api("/api/test", { endpoint: sub.endpoint }); toast("بيوصلك تنبيه خلال دقيقة أو دقيقتين. اقفل الشاشة وانتظر."); }
+      catch (e) { toast(e.message); }
+    };
+  } else {
+    box.innerHTML = `<p>فعّل التنبيهات عشان يوصلك تذكير الجمعة.</p>
+      <button class="primary small" id="enableBtn">تفعيل التنبيهات</button>`;
+    $("#enableBtn").onclick = async () => {
+      try {
+        if (await Notification.requestPermission() !== "granted") return renderNotif();
+        const s = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64(state.vapidKey) });
+        await api("/api/subscribe", { subscription: s.toJSON() });
+        toast("تفعّلت التنبيهات. بيوصلك تنبيه ترحيب بعد ٣ دقايق تقريباً."); renderNotif();
+      } catch (e) { toast(e.message || "ما قدرنا نفعّل التنبيهات"); }
+    };
+  }
+}
+
+function renderDemoBar() {
+  const bar = $("#demoBar"); bar.hidden = false;
+  bar.innerHTML = `<span>معاينة كـ</span>${state.people.map((p) =>
+    `<button class="dchip ${p === me ? "on" : ""}" data-p="${p}">${p}</button>`).join("")}
+    <span class="sep"></span><button class="dchip" id="dReset">تصفير الأسبوع</button>`;
+  bar.querySelectorAll("[data-p]").forEach((b) => (b.onclick = () => { token = "demo:" + b.dataset.p; $("#loginSheet").classList.remove("open"); load(); }));
+  $("#dReset").onclick = () => { window.__demoReset(); load(); };
+}
+
+load();
+if (!DEMO) {
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
+  setInterval(() => { if (!document.hidden && state) load(); }, 60000);
+}
+</script>
+</body>
+</html>
