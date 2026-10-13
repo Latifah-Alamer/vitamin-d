@@ -1,4 +1,4 @@
-import { store, json, sha, auth, unauthorized, queuePush } from "../lib/shared.mjs";
+import { store, json, sha, auth, unauthorized, queuePush, timeOf, timeLabel } from "../lib/shared.mjs";
 
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "method" }, 405);
@@ -12,7 +12,7 @@ export default async (req) => {
   await subs.setJSON(key, { subscription, name });
   // تنبيه ترحيب بعد ٣ دقايق: يتأكد إن المهام المجدولة والتنبيهات شغالة والتطبيق مقفل
   if (isNew) {
-    await queuePush(key, { title: `أهلاً ${name} 👋`, body: "التنبيهات شغالة. نشوفك الجمعة ٢:٣٠ العصر 💊", url: "/" }, 3 * 60e3);
+    await queuePush(key, { title: `أهلاً ${name} 👋`, body: `التنبيهات شغالة. نشوفك الجمعة ${timeLabel(timeOf(name))} 💊`, url: "/" }, 3 * 60e3);
   }
   return json({ ok: true, welcome: isNew });
 };

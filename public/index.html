@@ -147,7 +147,7 @@
     <div class="head"><h2 id="leagueTitle"></h2><span class="muted" id="leagueLeft"></span></div>
     <div id="table" style="display:flex;flex-direction:column;gap:8px"></div>
     <p class="lnote" id="leagueNote"></p>
-    <p class="rule muted">الحبة بنقطة، واللي يسبق ياخذ نقطة زيادة. كل دائرة جمعة من الشهر.</p>
+    <p class="rule muted">الحبة بنقطة، وإذا أخذتها خلال ربع ساعة من تذكيرك تاخذ نقطة زيادة ⚡ وإذا تعادلتوا يفوز اللي مجموع تأخيره أقل.</p>
     <details id="champsWrap" hidden>
       <summary>أبطال الشهور اللي فاتت</summary>
       <ul class="list" id="champs"></ul>
@@ -231,23 +231,38 @@ function cheer(msg) {
 }
 $("#cheer").onclick = () => $("#cheer").classList.remove("show");
 
+// وقت تذكير كل شخص (يجي من السيرفر)
+const DEFAULT_TIME = "14:30";
+const timeOf = (p) => (state?.times || {})[p] || DEFAULT_TIME;
+function timeLabel(hm) {
+  let [h, m] = hm.split(":").map(Number);
+  const part = h < 12 ? "الصبح" : h < 14 ? "الظهر" : h < 18 ? "العصر" : "المساء";
+  h = h % 12 || 12;
+  return `${num(h)}:${String(m).padStart(2, "0").replace(/\d/g, (d) => num(+d))} ${part}`;
+}
+const BONUS_MIN = 15;
+// كم دقيقة بعد التذكير سجّل (قبل التذكير = ٠)، أو null إذا ما سجّل
+function delayOf(c, p, week) {
+  if (!c[p]) return null;
+  return Math.max(0, Math.round((new Date(c[p]) - weekDate(week, timeOf(p))) / 6e4));
+}
+
 // رسائل التسجيل
-function cheerLine(me, o, otherDone) {
+function cheerLine(me, o, delay, early) {
   const F = !!FEM[me], OF = !!FEM[o], s = F ? "شطورة" : "شطور";
-  const first = [
-    `${s}! ${F ? "سبقتي" : "سبقت"} ${o}، ${OF ? "خلّها تاكل" : "خلّه ياكل"} غبارك 😎`,
-    `${s}! الجولة لك: ${me} ١، ${o} ٠ ⚽`,
-    `${s}! ${o} لسّا ${OF ? "تدوّر" : "يدوّر"} الحبة... ${OF ? "خلّها تدوّر" : "خلّه يدوّر"} 😂`,
-    `${s}! ${F ? "تصدّرتي" : "تصدّرت"} الدوري، و${o} ${OF ? "قاعدة" : "قاعد"} على الدكة 🪑`,
-    `${s}! بس ${F ? "لا تشوفين" : "لا تشوف"} نفسك، ${o} ${OF ? "بتلحقك" : "بيلحقك"} 👀`,
+  const fast = [
+    `${s}! ${F ? "ضبطتي" : "ضبطت"} الربع ساعة، والنقطة الإضافية لك ⚡`,
+    `${s}! سرعة صاروخ 🚀 و${o} ${OF ? "تشوف وتتعلم" : "يشوف ويتعلم"} 😎`,
+    `${s}! نقطتين في الجيب، ${o} ${OF ? "عساها تلحق" : "عساه يلحق"} 👀`,
   ];
-  const second = [
-    `${s}! ${o} ${OF ? "سبقتك" : "سبقك"} هالمرة... الأسبوع الجاي ثأر 😤`,
-    `${s}! تعادل، بس الكل يدري مين الأسرع 😏`,
-    `${s}! ${F ? "وصلتي متأخرة" : "وصلت متأخر"}، بس ${F ? "وصلتي" : "وصلت"} 🐢`,
+  if (early) fast.push(`${s}! ${F ? "أخذتيها" : "أخذتها"} قبل لا نذكّرك، ما شاء الله 😏`);
+  const late = [
+    `${s}! ${F ? "أخذتيها" : "أخذتها"}، بس الربع ساعة فاتتك 🐢`,
+    `${s}! النقطة الأساسية لك، والإضافية ${F ? "خلّيتيها" : "خلّيتها"} للجمعة الجاية 😅`,
+    `${s}! ${F ? "متأخرة بس واصلة" : "متأخر بس واصل"}، الأسبوع الجاي نبي الربع ساعة 😤`,
   ];
   const any = [`${s}! عظامك صارت حديد، وعظام ${o} بسكويت 🍪`];
-  const pool = (otherDone ? second : first).concat(any);
+  const pool = (delay <= BONUS_MIN ? fast : late).concat(any);
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
@@ -282,7 +297,8 @@ function render() {
     const t = name && checkins[name];
     $(`#half-${side}`).classList.toggle("lit", !!t);
     $(`#name-${side}`).textContent = name || "؟";
-    $(`#time-${side}`).textContent = t ? fmtTime.format(new Date(t)) : (name ? "بالانتظار" : "");
+    const dl = name && delayOf(checkins, name, week);
+    $(`#time-${side}`).textContent = t ? fmtTime.format(new Date(t)) + (dl <= BONUS_MIN ? " ⚡" : "") : (name ? "بالانتظار" : "");
     $(`#name-${side}`).classList.toggle("on", !!t);
     $(`#time-${side}`).classList.toggle("on", !!t);
   };
@@ -309,9 +325,10 @@ function render() {
 
   // التذكير الجاي
   const now = new Date();
-  let target = weekDate(week, "14:30");
+  const myTime = timeOf(me);
+  let target = weekDate(week, myTime);
   if (target < now) target = new Date(target.getTime() + 7 * 864e5);
-  $("#nextWhen").textContent = `التذكير الجاي ${fmtDay.format(target)}، ٢:٣٠ العصر`;
+  $("#nextWhen").textContent = `${me ? "تذكيرك" : "التذكير"} الجاي ${fmtDay.format(target)}، ${timeLabel(myTime)}`;
   const mins = Math.max(0, Math.round((target - now) / 6e4));
   const d = Math.floor(mins / 1440), h = Math.floor(mins % 1440 / 60), m = mins % 60;
   const D = d && count(d, "يوم", "يومين", "أيام", "يوم");
@@ -325,11 +342,16 @@ function render() {
 }
 
 // الدوري الشهري
-function weekPoints(c, people) {
-  const pts = Object.fromEntries(people.map((p) => [p, c[p] ? 1 : 0]));
-  const took = people.filter((p) => c[p]).sort((x, y) => new Date(c[x]) - new Date(c[y]));
-  if (took.length) pts[took[0]] += 1;
-  return pts;
+// الحبة = نقطة، وخلال ربع ساعة من تذكيرك = نقطة زيادة
+// التأخير يُستخدم لكسر التعادل، واللي ما أخذ حبته يُحسب عليه ٦٠٠ دقيقة
+const MISS_DELAY = 600;
+function weekPoints(c, people, week) {
+  const out = {};
+  for (const p of people) {
+    const d = delayOf(c, p, week);
+    out[p] = { pts: d === null ? 0 : d <= BONUS_MIN ? 2 : 1, delay: d === null ? MISS_DELAY : d };
+  }
+  return out;
 }
 function renderLeague(people, weeks, curWeek) {
   $("#league").hidden = people.length < 2;
@@ -338,14 +360,21 @@ function renderLeague(people, weeks, curWeek) {
   const months = {};
   for (const w of weeks) {
     const k = w.week.slice(0, 7);
-    months[k] = months[k] || Object.fromEntries(people.map((p) => [p, 0]));
-    const wp = weekPoints(w.checkins || {}, people);
-    people.forEach((p) => (months[k][p] += wp[p]));
+    months[k] = months[k] || { pts: Object.fromEntries(people.map((p) => [p, 0])), delay: Object.fromEntries(people.map((p) => [p, 0])) };
+    const wp = weekPoints(w.checkins || {}, people, w.week);
+    // الجمعة الحالية ما تُحسب عليها غياب قبل ما يجي وقتها
+    const pending = w.week === curWeek;
+    people.forEach((p) => {
+      months[k].pts[p] += wp[p].pts;
+      if (!(pending && wp[p].pts === 0)) months[k].delay[p] += wp[p].delay;
+    });
   }
+  const rank = (m) => [...people].sort((x, y) => (m.pts[y] - m.pts[x]) || (m.delay[x] - m.delay[y]));
   const cur = curWeek.slice(0, 7);
-  const t = months[cur];
-  const [a, b] = [...people].sort((x, y) => t[y] - t[x]);
+  const M = months[cur], t = M.pts;
+  const [a, b] = rank(M);
   const diff = t[a] - t[b];
+  const leads = diff > 0 || (t[a] > 0 && M.delay[a] < M.delay[b]);
 
   // جمع هالشهر
   const fridays = [];
@@ -358,19 +387,22 @@ function renderLeague(people, weeks, curWeek) {
   $("#leagueTitle").textContent = "دوري " + monthName(cur);
   $("#leagueLeft").textContent = left === 1 ? "آخر جمعة بالشهر" : `باقي ${count(left, "جمعة", "جمعتين", "جمع", "جمعة")}`;
   $("#table").innerHTML = [a, b].map((p) => {
-    const lead = diff > 0 && p === a;
+    const lead = leads && p === a;
     const dots = fridays.map((f) => `<span class="dot ${byWeek[f]?.[p] ? "on" : ""} ${f > curWeek ? "later" : ""}"></span>`).join("");
     return `<div class="lrow ${lead ? "lead" : ""}"><span>${lead ? "👑 " : ""}${p}</span><span class="dots" aria-hidden="true">${dots}</span><b>${num(t[p])}</b></div>`;
   }).join("");
   $("#leagueNote").textContent =
-    diff === 0 ? (t[a] ? "تعادل، والجمعة الجاية تحسم 🔥" : "الشهر توه بادي، والكل على الصفر")
+    diff === 0 ? (!t[a] ? "الشهر توه بادي، والكل على الصفر"
+      : leads ? `تعادل بالنقاط، و${a} ${FEM[a] ? "متقدّمة" : "متقدّم"} بالسرعة ⚡`
+      : "تعادل كامل، والجمعة الجاية تحسم 🔥")
     : `${a} ${FEM[a] ? "متصدّرة" : "متصدّر"} بفارق ${count(diff, "نقطة", "نقطتين", "نقاط", "نقطة")}، و${b} ${FEM[b] ? "لازم تصحصح" : "لازم يصحصح"} 😏`;
 
   const past = Object.keys(months).filter((k) => k < cur).sort().reverse().slice(0, 6);
   $("#champsWrap").hidden = !past.length;
   $("#champs").innerHTML = past.map((k) => {
-    const m = months[k], [w, l] = [...people].sort((x, y) => m[y] - m[x]);
-    const res = m[w] === m[l] ? `تعادل ${num(m[w])}–${num(m[l])}` : `🏆 ${w}، ${num(m[w])}–${num(m[l])}`;
+    const m = months[k], [w, l] = rank(m), P = m.pts;
+    const tie = P[w] === P[l] && m.delay[w] === m.delay[l];
+    const res = tie ? `تعادل ${num(P[w])}–${num(P[l])}` : `🏆 ${w}، ${num(P[w])}–${num(P[l])}${P[w] === P[l] ? " بالسرعة" : ""}`;
     return `<li><span>${monthName(k)}</span><span>${res}</span></li>`;
   }).join("");
 }
@@ -379,12 +411,14 @@ $("#takeBtn").onclick = async () => {
   const btn = $("#takeBtn"); btn.disabled = true;
   const undo = !!state.checkins[me];
   const other = state.people.find((p) => p !== me);
-  const otherDone = !!(other && state.checkins[other]);
   try {
     const r = await api("/api/checkin", { undo });
     state.checkins = r.checkins; render();
     if (undo) toast("انلغى التسجيل");
-    else cheer(other ? cheerLine(me, other, otherDone) : (FEM[me] ? "شطورة! 💪" : "شطور! 💪"));
+    else {
+      const early = new Date(r.checkins[me]) < weekDate(state.week, timeOf(me));
+      cheer(other ? cheerLine(me, other, delayOf(r.checkins, me, state.week), early) : (FEM[me] ? "شطورة! 💪" : "شطور! 💪"));
+    }
   } catch (e) { toast(e.message); btn.disabled = false; }
 };
 
@@ -449,7 +483,7 @@ const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platfo
 const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 const swReady = !DEMO && "serviceWorker" in navigator
   ? navigator.serviceWorker.register("/sw.js").then(() => navigator.serviceWorker.ready) : null;
-const ON_TEXT = `<p>التنبيهات مفعّلة: الجمعة ٢:٣٠ العصر، وتذكير ثاني ٨ المساء إذا ما سجّلت.</p>
+const onText = () => `<p>التنبيهات مفعّلة: الجمعة ${timeLabel(timeOf(me))}، وتذكير ثاني ٨ المساء إذا ما سجّلت.</p>
   <button class="link" id="testBtn">تجربة التنبيه</button>`;
 
 function urlB64(b64) {
@@ -461,7 +495,7 @@ function urlB64(b64) {
 async function renderNotif() {
   const box = $("#notif");
   if (DEMO) {
-    box.innerHTML = ON_TEXT;
+    box.innerHTML = onText();
     $("#testBtn").onclick = () => { toast("بيوصلك تنبيه خلال دقيقة أو دقيقتين. اقفل الشاشة وانتظر."); setTimeout(() => window.__demoPush(me, state, true), 2500); };
     return;
   }
@@ -482,7 +516,7 @@ async function renderNotif() {
   if (!me) { box.innerHTML = `<p class="muted">سجّل دخولك عشان تفعّل التنبيهات.</p>`; return; }
   if (sub) {
     api("/api/subscribe", { subscription: sub.toJSON() }).catch(() => {});
-    box.innerHTML = ON_TEXT;
+    box.innerHTML = onText();
     $("#testBtn").onclick = async () => {
       try { await api("/api/test", { endpoint: sub.endpoint }); toast("بيوصلك تنبيه خلال دقيقة أو دقيقتين. اقفل الشاشة وانتظر."); }
       catch (e) { toast(e.message); }

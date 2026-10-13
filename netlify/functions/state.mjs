@@ -1,4 +1,4 @@
-import { store, fridayKey, json, getPeople, getWeek, auth } from "../lib/shared.mjs";
+import { store, fridayKey, json, getPeople, getWeek, auth, REMINDER_TIMES } from "../lib/shared.mjs";
 
 export default async (req) => {
   const week = fridayKey();
@@ -10,6 +10,7 @@ export default async (req) => {
     people: await getPeople(),
     accounts: Object.keys((await store("meta").get("pins", { type: "json" })) || {}),
     me: await auth(req),
+    times: REMINDER_TIMES,
     week,
     checkins: await getWeek(week),
     history,

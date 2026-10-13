@@ -23,6 +23,18 @@ export async function sha(s) {
 }
 
 export const DEFAULT_PEOPLE = ["لطيفة", "إبراهيم"];
+// وقت تذكير كل شخص يوم الجمعة (بتوقيت السعودية)
+export const REMINDER_TIMES = { "لطيفة": "14:30", "إبراهيم": "13:30" };
+export const timeOf = (name) => REMINDER_TIMES[name] || "14:30";
+export const timeLabel = (hm) => {
+  let [h, m] = hm.split(":").map(Number);
+  const ar = (n) => n.toLocaleString("ar-SA");
+  const part = h < 12 ? "الصبح" : h < 14 ? "الظهر" : h < 18 ? "العصر" : "المساء";
+  h = h % 12 || 12;
+  return `${ar(h)}:${m.toString().padStart(2, "0").replace(/\d/g, (d) => ar(+d))} ${part}`;
+};
+// الوقت الحين بتوقيت السعودية بالدقائق
+export const riyadhMinutes = (d = new Date()) => { const r = new Date(d.getTime() + 3 * 3600e3); return r.getUTCHours() * 60 + r.getUTCMinutes(); };
 export const getPeople = async () => (await store("meta").get("people", { type: "json" })) || DEFAULT_PEOPLE;
 const FEM = { "لطيفة": true };
 export const took = (n) => (FEM[n] ? "أخذت حبتها" : "أخذ حبته");
@@ -78,3 +90,14 @@ export async function queuePush(subKey, payload, delayMs) {
   await store("queue").setJSON(`${at}-${Math.random().toString(36).slice(2, 8)}`, { subKey, payload, at });
   return at;
 }
+
+// إعلانات تنرسل مرة وحدة بس، أول ما ينشر الموقع (يرسلها queue-runner)
+// لإعلان جديد: أضيفي سطر بـ id جديد
+export const ANNOUNCEMENTS = [
+  {
+    id: "ibrahim-time-1330",
+    to: "إبراهيم",
+    title: "⏰ تغيّر وقت تذكيرك",
+    body: "صار تذكير فيتامين د يوصلك كل جمعة ١:٣٠ الظهر، وعندك ربع ساعة للنقطة الإضافية ⚡",
+  },
+];
